@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %> - E-Commerce Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <%- include('../partials/navbar', { user }) %>
+
+    <div class="container my-5">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/shop">Shop</a></li>
+                <li class="breadcrumb-item active"><%= product.name %></li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-md-6">
+                <img src="<%= product.imageUrl || 'https://via.placeholder.com/500' %>" class="img-fluid rounded" alt="<%= product.name %>">
+            </div>
+            <div class="col-md-6">
+                <span class="badge bg-secondary mb-2"><%= product.category.name %></span>
+                <h1 class="mb-3"><%= product.name %></h1>
+                <h2 class="text-primary mb-4">$<%= product.price %></h2>
+                
+                <% if (product.stock > 0) { %>
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle"></i> In Stock (<%= product.stock %> available)
+                    </div>
+                <% } else { %>
+                    <div class="alert alert-danger">
+                        <i class="bi bi-x-circle"></i> Out of Stock
+                    </div>
+                <% } %>
+
+                <p class="lead"><%= product.shortDescription %></p>
+                
+                <% if (user && product.stock > 0) { %>
+                <form onsubmit="addToCart(event, <%= product.id %>)" class="mb-4">
+                    <div class="input-group mb-3" style="max-width: 200px;">
+                        <button class="btn btn-outline-secondary" type="button" onclick="decrementQty()">-</button>
+                        <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="<%= product.stock %>">
+                        <button class="btn btn-outline-secondary" type="button" onclick="incrementQty(<%= product.stock %>)">+</button>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                </form>
+                <% } else if (!user) { %>
+                    <a href="/login" class="btn btn-primary btn-lg">Login to Purchase</a>
+                <% } %>
+
+                <hr>
+
+                <div class="mb-3">
+                    <h5>Description</h5>
+                    <p><%= product.description %></p>
+                </div>
+
+                <div class="mb-3">
+                    <h5>Product Details</h5>
+                    <ul class="list-unstyled">
+                        <li><strong>SKU:</strong> <%= product.sku %></li>
+                        <li><strong>Category:</strong> <%= product.category.name %></li>
+                        <% if (product.weight) { %>
+                            <li><strong>Weight:</strong> <%= product.weight %> kg</li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        <% if (relatedProducts.length > 0) { %>
+        <section class="mt-5">
+            <h3 class="mb-4">Related Products</h3>
+            <div class="row g-4">
+                <% relatedProducts.forEach(relProduct => { %>
+                <div class="col-md-3">
+                    <div class="card h-100">
+                        <img src="<%= relProduct.imageUrl || 'https://via.placeholder.com/300' %>" class="card-img-top" alt="<%= relProduct.name %>" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h6 class="card-title"><%= relProduct.name %></h6>
+                            <p class="text-primary fw-bold">$<%= relProduct.price %></p>
+                            <a href="/product/<%= relProduct.slug %>" class="btn btn-outline-primary btn-sm">View</a>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+        </section>
+        <% } %>
+    </div>
+
+    <%- include('../partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function incrementQty(max) {
+            const input = document.getElementById('quantity');
+            if (parseInt(input.value) < max) {
+                input.value = parseInt(input.value) + 1;
+            }
+        }
+
+        function decrementQty() {
+            const input = document.getElementById('quantity');
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        }
+
+        function addToCart(event, productId) {
+            event.preventDefault();
+            const quantity = parseInt(document.getElementById('quantity').value);
+
+            fetch('/api/cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ productId, quantity })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Product added to cart!');
+                } else {
+                    alert(data.message || 'Failed to add to cart');
+                }
+            })
+            .catch(err => alert('Error adding to cart'));
+        }
+    </script>
+</body>
+</html>
