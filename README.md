@@ -42,7 +42,7 @@ A complete, full-stack e-commerce platform with customer-facing website, admin p
 ### 1. Clone the Repository
 
 ```bash
-cd FinalLabexamproject
+cd ecommerce-fullstack-project
 ```
 
 ### 2. Install Backend Dependencies
@@ -212,7 +212,7 @@ See [API_DOCS.md](./API_DOCS.md) for complete API documentation.
 ## 📦 Project Structure
 
 ```
-FinalLabexamproject/
+ecommerce-fullstack-project/
 ├── backend/
 │   ├── src/
 │   │   ├── config/         # Database and app config
