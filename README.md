@@ -167,7 +167,7 @@ npm run build
 - Login: http://localhost:5173/login
 - Default credentials:
   - Email: admin@ecommerce.com
-  - Password: admin123
+  - Password: admin@123
 
 ## 🔐 API Endpoints
 
